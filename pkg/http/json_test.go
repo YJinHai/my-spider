@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var data  = `
+var data = `
 {
     "err_no": 0,
     "err_msg": "success",
@@ -1826,14 +1826,41 @@ func TestJson(t *testing.T) {
 	//var v interface{}
 	var v JsonData
 	err := json.Unmarshal([]byte(data), &v)
-	for _,d := range v.Data {
-		fmt.Println("d:",d)
+	for _, d := range v.Data {
+		fmt.Println("d:", d)
 		d2 := d.(map[string]interface{})
-		for _,dd := range d2{
+		for _, dd := range d2 {
 
-			fmt.Println("dd:",dd)
+			fmt.Println("dd:", dd)
 		}
 	}
-	fmt.Println("err:",err)
-	fmt.Println("v:",v)
+	fmt.Println("err:", err)
+	fmt.Println("v:", v)
+}
+
+type Article struct {
+	ArticleId    int64  `json:"article_id"`
+	CategoryId   int64  `json:"category_id"`
+	BriefContent string `json:"brief_content"`
+	CTime        int64  `json:"brief_content"`
+}
+
+func TestJson2(t *testing.T) {
+	//var v interface{}
+	var v JsonData
+
+	var a Article
+	GetJsonTag(a)
+
+	err := json.Unmarshal([]byte(data), &v)
+	for _, d := range v.Data {
+		fmt.Println("d:", d)
+		d2 := d.(map[string]interface{})
+		for _, dd := range d2 {
+
+			fmt.Println("dd:", dd)
+		}
+	}
+	fmt.Println("err:", err)
+	fmt.Println("v:", v)
 }
