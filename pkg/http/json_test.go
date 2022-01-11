@@ -1839,28 +1839,69 @@ func TestJson(t *testing.T) {
 }
 
 type Article struct {
-	ArticleId    int64  `json:"article_id"`
-	CategoryId   int64  `json:"category_id"`
+	ArticleId    string `json:"article_id"`
+	CategoryId   string `json:"category_id"`
 	BriefContent string `json:"brief_content"`
-	CTime        int64  `json:"brief_content"`
+	Ctime        string `json:"ctime"`
 }
 
 func TestJson2(t *testing.T) {
 	//var v interface{}
-	var v JsonData
+	//var v JsonData
 
 	var a Article
-	GetJsonTag(a)
+	////GetJsonTag(a)
+	//
+	//
+	//var strIndex []int
+	//
+	//tM1 := make(map[int]string)
+	//sM1 := make(map[int]string)
+	//pM1 := make(map[string]interface{})
+	//val := reflect.ValueOf(a)
+	//typ := val.Type()
+	//for i := 0; i < typ.NumField(); i++ {
+	//	sf := typ.Field(i)
+	//	tag := sf.Tag.Get("json")
+	//	if tag == "-" {
+	//		continue
+	//	}
+	//	tM1[int(sf.Offset)] = fmt.Sprint(sf.Type)
+	//	sM1[int(sf.Offset)] = tag
+	//	strIndex = append(strIndex, int(sf.Offset))
+	//}
+	//
+	//dest := (uintptr)(unsafe.Pointer(&a))
+	//for _,b := range strIndex {
+	//	teamp := *(*interface{})(unsafe.Pointer(dest + uintptr(b)))
+	//	pM1[sM1[b]] = &teamp
+	//
+	//	regexpS := "\"" + sM1[b] + "\"" + `:(\S+?)((,"[a-zA-Z_]+":)|(},))`
+	//
+	//	var RegexAmount = regexp.MustCompile(regexpS)
+	//	data += ","
+	//	newS := strings.Replace(strings.TrimSpace(data), " ", "", -1)
+	//	newS = strings.Replace(strings.TrimSpace(newS), "\n", "", -1)
+	//	match := RegexAmount.FindStringSubmatch(newS)
+	//	if len(match) <2 {
+	//		continue
+	//	}
+	//	value := match[1]
+	//	switch tM1[b] {
+	//	case "int64":
+	//		fmt.Println("int64")
+	//		amount, err := strconv.ParseInt(value,10, 64)
+	//		if err != nil {
+	//			return
+	//		}
+	//		*(*int64)(unsafe.Pointer(dest + uintptr(b))) = amount
+	//	case "string":
+	//		fmt.Println("string")
+	//		*(*string)(unsafe.Pointer(dest + uintptr(b))) = strings.Replace(strings.TrimSpace(value), "\"", "", -1)
+	//	}
+	//}
 
-	err := json.Unmarshal([]byte(data), &v)
-	for _, d := range v.Data {
-		fmt.Println("d:", d)
-		d2 := d.(map[string]interface{})
-		for _, dd := range d2 {
-
-			fmt.Println("dd:", dd)
-		}
-	}
-	fmt.Println("err:", err)
-	fmt.Println("v:", v)
+	b := JsonRegexp(data, a)
+	fmt.Println("match:", b.(Article))
+	fmt.Println("match:", b)
 }
