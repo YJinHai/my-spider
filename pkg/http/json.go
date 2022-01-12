@@ -23,12 +23,66 @@ type JsonMap struct {
 	Map map[string]interface{}
 }
 
-func JsonRegexp(data string, v interface{}) interface{} {
+type Article struct {
+	ArticleId    string `json:"article_id"`
+	CategoryId   string `json:"category_id"`
+	BriefContent string `json:"brief_content"`
+	Ctime        string `json:"ctime"`
+	Omitempty    int64  `json:"omitempty"`
+}
+
+func JsonToStructList(data string, f func(data []byte) (interface{}, error)) []interface{} {
+	var (
+		jsonD JsonData
+		list  []interface{}
+	)
+	err := json.Unmarshal([]byte(data), &jsonD)
+	if err != nil {
+		return nil
+	}
+	for _, d := range jsonD.Data {
+		d2 := d.(map[string]interface{})
+		temp := jsonToStruct(d2, f)
+		list = append(list, temp...)
+	}
+	fmt.Println("err:", err)
+
+	return list
+}
+
+func jsonToStruct(data map[string]interface{}, f func(data []byte) (interface{}, error)) []interface{} {
+	var list []interface{}
+
+	for _, d := range data {
+		b, err := json.Marshal(d)
+		if err != nil {
+			//
+			//l := make(map[string]interface{})
+			//l["err"] = err
+			//l["msg"] = "json.Marshal failed"
+			//
+			//log.Logger.Log(log.LevelWarn, l)
+			d2 := d.(map[string]interface{})
+			jsonToStruct(d2, f)
+			continue
+		}
+
+		ret, err2 := f(b)
+		if err2 != nil {
+			continue
+		}
+		list = append(list, ret)
+	}
+
+	return list
+}
+
+func JsonRegexp(data string, v interface{}, dest uintptr) interface{} {
 	//switch v.(type) {
 	//case uintptr:
 	//
 	//}
-	vt := &v
+	//vt := &v
 
 	var strIndex []int
 
@@ -51,7 +105,6 @@ func JsonRegexp(data string, v interface{}) interface{} {
 	newS := strings.Replace(strings.TrimSpace(data), " ", "", -1)
 	newS = strings.Replace(strings.TrimSpace(newS), "\n", "", -1)
 
-	dest := (uintptr)(unsafe.Pointer(&v))
 	for _, b := range strIndex {
 		//teamp := *(*interface{})(unsafe.Pointer(dest + uintptr(b)))
 		//pM1[sM1[b]] = &teamp
@@ -77,84 +130,16 @@ func JsonRegexp(data string, v interface{}) interface{} {
 			*(*string)(unsafe.Pointer(dest + uintptr(b))) = strings.Replace(strings.TrimSpace(value), "\"", "", -1)
 		}
 	}
-	endIndex := strIndex[len(strIndex)-1]
-	//*(*int64)(unsafe.Pointer(dest + uintptr(1))) = 1
-	*(*string)(unsafe.Pointer(dest - uintptr(endIndex))) = "1"
+	//endIndex := strIndex[len(strIndex)-1]
+	////*(*int64)(unsafe.Pointer(dest + uintptr(1))) = 1
+	//*(*string)(unsafe.Pointer(dest - uintptr(endIndex))) = "1"
 
-	//fmt.Println("v:",v)
+	fmt.Println("v:", v)
 	//var desC interface{}
 	////copy(desC, v)
 	//tmp :=
 	//vt = v
-	return *vt
-}
-
-func GetJsonTag(v interface{}) map[string]string {
-	var strM map[string]string
-	val := reflect.ValueOf(v)
-	typ := val.Type()
-	for i := 0; i < typ.NumField(); i++ {
-		sf := typ.Field(i)
-		if sf.PkgPath != "" && !sf.Anonymous { // unexported
-			continue
-		}
-
-		tag := sf.Tag.Get("json")
-		if tag == "-" {
-			continue
-		}
-
-		strM[sf.Name] = tag
-	}
-
-	return strM
-}
-
-// GetReflectTag 层级递增解析tag
-func getReflectTag(reflectType reflect.Type) (string, string) {
-
-	if reflectType.Kind() != reflect.Struct {
-		return "", ""
-	}
-
-	var fields strings.Builder
-	primaryKey := ""
-	baseModel := ""
-	for i := 0; i < reflectType.NumField(); i++ {
-		tag := reflectType.Field(i).Tag.Get("json")
-		if tag == "-" {
-			continue
-		}
-
-		if tag == "" {
-			getReflectTag(reflectType.Field(i).Type)
-			continue
-		}
-
-		name, isPrimaryKey := parseTag(tag)
-		if isPrimaryKey {
-			primaryKey = name
-			continue
-		}
-
-		if name == "" {
-			continue
-		}
-
-		fields.WriteString(",")
-		fields.WriteString(name)
-	}
-
-	if baseModel != "" {
-		var newS strings.Builder
-		newS.WriteString(",")
-		newS.WriteString(baseModel)
-		newS.WriteString(fields.String())
-		fields.Reset()
-		fields = newS
-	}
-
-	return fields.String(), primaryKey
+	return v
 }
 
 func parseTag(tag string) (string, bool) {

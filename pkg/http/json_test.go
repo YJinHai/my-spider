@@ -2,8 +2,14 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
 	"testing"
+	"unsafe"
 )
 
 var data = `
@@ -1825,24 +1831,58 @@ var data = `
 func TestJson(t *testing.T) {
 	//var v interface{}
 	var v JsonData
+	var arry []interface{}
+	//var article Article
 	err := json.Unmarshal([]byte(data), &v)
 	for _, d := range v.Data {
-		fmt.Println("d:", d)
 		d2 := d.(map[string]interface{})
-		for _, dd := range d2 {
-
-			fmt.Println("dd:", dd)
-		}
+		teamp := JsomM(d2)
+		arry = append(arry, teamp...)
 	}
 	fmt.Println("err:", err)
 	fmt.Println("v:", v)
+
 }
 
-type Article struct {
-	ArticleId    string `json:"article_id"`
-	CategoryId   string `json:"category_id"`
-	BriefContent string `json:"brief_content"`
-	Ctime        string `json:"ctime"`
+func JsomM(data map[string]interface{}) []interface{} {
+	var array []interface{}
+
+	for _, d := range data {
+		b, err2 := json.Marshal(d)
+		if err2 != nil {
+			fmt.Println("json.Marshal failed:", err2)
+			d2 := d.(map[string]interface{})
+			JsomM(d2)
+			continue
+		}
+		var ret Article
+		err3 := json.Unmarshal([]byte(b), &ret)
+		if err3 != nil {
+			continue
+
+		}
+		if ret.ArticleId == "" {
+			continue
+		}
+
+		array = append(array, ret)
+	}
+
+	return array
+}
+
+func TestJson3(t *testing.T) {
+	//var a *Article
+	a := &Article{}
+	fmt.Println("a:", a)
+	vm := make(map[string]interface{})
+	vm["1"] = &a.ArticleId
+	temp := vm["1"]
+	s := "abc"
+	fmt.Println("match:", temp)
+	temp = s
+	fmt.Println("match:", temp)
+	fmt.Println("match:", a)
 }
 
 func TestJson2(t *testing.T) {
@@ -1853,55 +1893,75 @@ func TestJson2(t *testing.T) {
 	////GetJsonTag(a)
 	//
 	//
-	//var strIndex []int
-	//
-	//tM1 := make(map[int]string)
-	//sM1 := make(map[int]string)
-	//pM1 := make(map[string]interface{})
-	//val := reflect.ValueOf(a)
-	//typ := val.Type()
-	//for i := 0; i < typ.NumField(); i++ {
-	//	sf := typ.Field(i)
-	//	tag := sf.Tag.Get("json")
-	//	if tag == "-" {
-	//		continue
-	//	}
-	//	tM1[int(sf.Offset)] = fmt.Sprint(sf.Type)
-	//	sM1[int(sf.Offset)] = tag
-	//	strIndex = append(strIndex, int(sf.Offset))
-	//}
-	//
-	//dest := (uintptr)(unsafe.Pointer(&a))
-	//for _,b := range strIndex {
-	//	teamp := *(*interface{})(unsafe.Pointer(dest + uintptr(b)))
-	//	pM1[sM1[b]] = &teamp
-	//
-	//	regexpS := "\"" + sM1[b] + "\"" + `:(\S+?)((,"[a-zA-Z_]+":)|(},))`
-	//
-	//	var RegexAmount = regexp.MustCompile(regexpS)
-	//	data += ","
-	//	newS := strings.Replace(strings.TrimSpace(data), " ", "", -1)
-	//	newS = strings.Replace(strings.TrimSpace(newS), "\n", "", -1)
-	//	match := RegexAmount.FindStringSubmatch(newS)
-	//	if len(match) <2 {
-	//		continue
-	//	}
-	//	value := match[1]
-	//	switch tM1[b] {
-	//	case "int64":
-	//		fmt.Println("int64")
-	//		amount, err := strconv.ParseInt(value,10, 64)
-	//		if err != nil {
-	//			return
-	//		}
-	//		*(*int64)(unsafe.Pointer(dest + uintptr(b))) = amount
-	//	case "string":
-	//		fmt.Println("string")
-	//		*(*string)(unsafe.Pointer(dest + uintptr(b))) = strings.Replace(strings.TrimSpace(value), "\"", "", -1)
-	//	}
-	//}
+	var strIndex []int
 
-	b := JsonRegexp(data, a)
-	fmt.Println("match:", b.(Article))
-	fmt.Println("match:", b)
+	tM1 := make(map[int]string)
+	sM1 := make(map[int]string)
+	pM1 := make(map[string]interface{})
+	val := reflect.ValueOf(a)
+	typ := val.Type()
+	for i := 0; i < typ.NumField(); i++ {
+		sf := typ.Field(i)
+		tag := sf.Tag.Get("json")
+		if tag == "-" {
+			continue
+		}
+		tM1[int(sf.Offset)] = fmt.Sprint(sf.Type)
+		sM1[int(sf.Offset)] = tag
+		strIndex = append(strIndex, int(sf.Offset))
+	}
+
+	dest := (uintptr)(unsafe.Pointer(&a))
+	for _, b := range strIndex {
+		teamp := *(*interface{})(unsafe.Pointer(dest + uintptr(b)))
+		pM1[sM1[b]] = &teamp
+
+		regexpS := "\"" + sM1[b] + "\"" + `:(\S+?)((,"[a-zA-Z_]+":)|(},))`
+
+		var RegexAmount = regexp.MustCompile(regexpS)
+		data += ","
+		newS := strings.Replace(strings.TrimSpace(data), " ", "", -1)
+		newS = strings.Replace(strings.TrimSpace(newS), "\n", "", -1)
+		match := RegexAmount.FindStringSubmatch(newS)
+		if len(match) < 2 {
+			continue
+		}
+		value := match[1]
+		switch tM1[b] {
+		case "int64":
+			fmt.Println("int64")
+			amount, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				return
+			}
+			*(*int64)(unsafe.Pointer(dest + uintptr(b))) = amount
+		case "string":
+			fmt.Println("string")
+			*(*string)(unsafe.Pointer(dest + uintptr(b))) = strings.Replace(strings.TrimSpace(value), "\"", "", -1)
+		}
+	}
+	fmt.Println("match:", a)
+	//var aa Article
+	//b := JsonRegexp(data, a,(uintptr)(unsafe.Pointer(&aa)))
+	//
+	////fmt.Println("match:", 	*(*Article)(unsafe.Pointer(b)))
+	//fmt.Println("match:", aa)
+	//fmt.Println("match:", b)
+}
+
+func TestJson4(t *testing.T) {
+	f := func(data []byte) (interface{}, error) {
+		var ret *Article
+		err3 := json.Unmarshal(data, &ret)
+		if err3 != nil || ret.ArticleId == "" {
+			return nil, errors.New("空字段")
+
+		}
+
+		return ret, nil
+	}
+	array := JsonToStructList(data, f)
+	for _, v := range array {
+		fmt.Println("v:", v.(*Article))
+	}
 }
