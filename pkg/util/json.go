@@ -89,7 +89,7 @@ func jsonToStructList(data interface{}, f func(data []byte) (interface{}, error)
 
 	switch data.(type) {
 	case map[string]interface{}:
-		data = jsonMergeField(data.(map[string]interface{}), make(map[string]interface{}))
+		data = jsonMergeField(data.(map[string]interface{}), nil)
 		b, err := json.Marshal(data)
 		if err != nil {
 			jsonToStructList(data, f)
@@ -117,6 +117,9 @@ func jsonToStructList(data interface{}, f func(data []byte) (interface{}, error)
 
 // 拼接map[string]interface{}
 func jsonMergeField(source map[string]interface{}, obj map[string]interface{}) map[string]interface{} {
+	if obj == nil {
+		obj = make(map[string]interface{})
+	}
 
 	for k, v := range source {
 		if _, ok := obj[k]; !ok {
