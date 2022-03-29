@@ -8,7 +8,7 @@ import (
 // CosineSimilarity use cosine algorithm to return a similarity index between string vectors
 // Takes two strings as parameters, a split length which define the k-gram single length
 // (if zero split string on whitespaces) and return an index.
-func CosineSimilarity(str1, str2 string, splitLength int) float32 {
+func CosineSimilarity(str1, str2 string, splitLength int) float64 {
 	if str1 == "" || str2 == "" {
 		return 0
 	}
@@ -18,8 +18,8 @@ func CosineSimilarity(str1, str2 string, splitLength int) float32 {
 	// Else use shingle algorithm
 	var splittedStr1, splittedStr2 []string
 	if splitLength == 0 {
-		splittedStr1 = strings.Split(str1, "")
-		splittedStr2 = strings.Split(str2, "")
+		splittedStr1 = strings.Split(str1, " ")
+		splittedStr2 = strings.Split(str2, " ")
 	} else {
 		splittedStr1 = ShingleSlice(str1, splitLength)
 		splittedStr2 = ShingleSlice(str2, splitLength)
@@ -55,12 +55,12 @@ func CosineSimilarity(str1, str2 string, splitLength int) float32 {
 	}
 
 	// Compute cosine algorithm
-	var cosineSim float32
+	var cosineSim float64
 	for i := 0; i < len(unionStr); i++ {
-		cosineSim += float32(l1[i] * l2[i])
+		cosineSim += float64(l1[i] * l2[i])
 	}
 
-	return cosineSim / float32(math.Sqrt(float64(sum(l1)*sum(l2))))
+	return cosineSim / math.Sqrt(float64(sum(l1)*sum(l2)))
 }
 
 // Compute union between two string slices, convert result to rune matrix and return it
