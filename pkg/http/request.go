@@ -5,15 +5,11 @@ import (
 	"strings"
 )
 
-func Get(cUrl string) *http.Response {
-	requestInfo := CUrlToRequestInfo(cUrl)
-	req, err := http.NewRequest("GET", requestInfo.Address, nil)
+func Get(url string) *http.Response {
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil
-	}
-
-	for k,v := range requestInfo.Header {
-		req.Header.Set(k,v)
 	}
 
 	clt := &http.Client{}
@@ -26,15 +22,36 @@ func Get(cUrl string) *http.Response {
 	return res
 }
 
-func Post(cUrl string)  *http.Response {
+func GetCurlBody(cUrl string) *http.Response {
+	requestInfo := CUrlToRequestInfo(cUrl)
+	req, err := http.NewRequest("GET", requestInfo.Address, nil)
+	if err != nil {
+		return nil
+	}
+
+	for k, v := range requestInfo.Header {
+		req.Header.Set(k, v)
+	}
+
+	clt := &http.Client{}
+	res, err := clt.Do(req)
+
+	if err != nil {
+		return nil
+	}
+
+	return res
+}
+
+func Post(cUrl string) *http.Response {
 	requestInfo := CUrlToRequestInfo(cUrl)
 	req, err := http.NewRequest("POST", requestInfo.Address, strings.NewReader(requestInfo.JsonPost))
 	if err != nil {
 		return nil
 	}
 
-	for k,v := range requestInfo.Header {
-		req.Header.Set(k,v)
+	for k, v := range requestInfo.Header {
+		req.Header.Set(k, v)
 	}
 	clt := &http.Client{}
 	res, err := clt.Do(req)

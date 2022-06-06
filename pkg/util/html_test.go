@@ -5607,11 +5607,7 @@ func TestHtmlMatchLink(t *testing.T) {
 	source := "<a target=\"_top\" class=\"main\" href=\"/monthly/2022/02\">"
 	sourceIndex := -1
 	for i, v := range res {
-		if len(v) < 4 {
-			continue
-		}
-
-		if v[1] == source {
+		if v.HtmlPre == source {
 			sourceIndex = i
 		}
 	}
@@ -5628,11 +5624,7 @@ func TestHtmlMatchLink11(t *testing.T) {
 	source := "<a class=\"index__item__title hvr-underline-from-left\" href=\"/2021/08/07/fourier-transform-and-audio-visualization/\">"
 	sourceIndex := -1
 	for i, v := range res {
-		if len(v) < 4 {
-			continue
-		}
-
-		if v[1] == source {
+		if v.HtmlPre == source {
 			sourceIndex = i
 		}
 	}
@@ -5643,70 +5635,70 @@ func TestHtmlMatchLink11(t *testing.T) {
 }
 
 // 整个网页，需要筛选的链接内容，有其他不需要的链接的
-func TestHtmlMatchLink2(t *testing.T) {
-	res := HtmlMatchLink(htmlData2)
-
-	htmlIndexM := make(map[string]int)
-	htmlM := make(map[string]string)
-	linkM := make(map[string]string)
-	//source := "<a class=\"index__item__title hvr-underline-from-left\" href=\"/2021/08/07/fourier-transform-and-audio-visualization/\">"
-	sourcePre := "<a class=\"index__item__title hvr-underline-from-left\" href=\"/20"
-	//sourceIndex := -1
-	newRes := res[:0]
-	for i, v := range res {
-		if len(v) < 4 {
-			continue
-		}
-
-		htmlIndexM[v[0]] = i
-		htmlM[v[0]] = v[1]
-		linkM[v[2]] = v[3]
-
-		//if v[1] == source {
-		//	sourceIndex = i
-		//}
-
-		s := v[1]
-		if len(s) > len(sourcePre) {
-			s = s[:len(sourcePre)]
-			if CosineSimilarity(s, sourcePre, 0) == 1 {
-				newRes = append(newRes, v)
-			}
-		}
-
-	}
-
-	fmt.Println(newRes)
-
-	//
-	//cosineM := make(map[string]float64)
-	//for k, v := range htmlM {
-	//	cosineM[k] = CosineSimilarity(v, source, 0)
-	//	if cosineM[k] == 1 {
-	//		a := k
-	//		fmt.Println(a, v)
-	//		continue
-	//	}
-	//
-	//}
-	//
-	//consineS := make([]float64, 0)
-	//for _, v := range cosineM {
-	//	consineS = append(consineS, v)
-	//}
-	//
-	//ms := base.NewMapSorter(cosineM)
-	//sort.Sort(ms)
-	//
-	//ms10 := ms[len(ms)-10:]
-	//
-	//for _,v := range ms10 {
-	//
-	//	fmt.Println(htmlIndexM[v.Key])
-	//	fmt.Println(v)
-	//}
-
-}
+//func TestHtmlMatchLink2(t *testing.T) {
+//	res := HtmlMatchLink(htmlData2)
+//
+//	htmlIndexM := make(map[string]int)
+//	htmlM := make(map[string]string)
+//	linkM := make(map[string]string)
+//	//source := "<a class=\"index__item__title hvr-underline-from-left\" href=\"/2021/08/07/fourier-transform-and-audio-visualization/\">"
+//	sourcePre := "<a class=\"index__item__title hvr-underline-from-left\" href=\"/20"
+//	//sourceIndex := -1
+//	newRes := res[:0]
+//	for i, v := range res {
+//		if len(v) < 4 {
+//			continue
+//		}
+//
+//		htmlIndexM[v[0]] = i
+//		htmlM[v[0]] = v[1]
+//		linkM[v[2]] = v[3]
+//
+//		//if v[1] == source {
+//		//	sourceIndex = i
+//		//}
+//
+//		s := v[1]
+//		if len(s) > len(sourcePre) {
+//			s = s[:len(sourcePre)]
+//			if CosineSimilarity(s, sourcePre, 0) == 1 {
+//				newRes = append(newRes, v)
+//			}
+//		}
+//
+//	}
+//
+//	fmt.Println(newRes)
+//
+//	//
+//	//cosineM := make(map[string]float64)
+//	//for k, v := range htmlM {
+//	//	cosineM[k] = CosineSimilarity(v, source, 0)
+//	//	if cosineM[k] == 1 {
+//	//		a := k
+//	//		fmt.Println(a, v)
+//	//		continue
+//	//	}
+//	//
+//	//}
+//	//
+//	//consineS := make([]float64, 0)
+//	//for _, v := range cosineM {
+//	//	consineS = append(consineS, v)
+//	//}
+//	//
+//	//ms := base.NewMapSorter(cosineM)
+//	//sort.Sort(ms)
+//	//
+//	//ms10 := ms[len(ms)-10:]
+//	//
+//	//for _,v := range ms10 {
+//	//
+//	//	fmt.Println(htmlIndexM[v.Key])
+//	//	fmt.Println(v)
+//	//}
+//
+//}
 
 func TestHtmlMatchLink3(t *testing.T) {
 	res := HtmlMatchTitle(htmlData3)
