@@ -7,8 +7,11 @@ import (
 
 func GetAllBlog(c *gin.Context) {
 	var list []interface{}
-
+	//
 	list = append(list, ColobuPage())
 	list = append(list, JiajunPage())
+
+	list = append(list, TigerbWeixinPage())
+
 	response.ApiReturn(1, list, c)
 }
