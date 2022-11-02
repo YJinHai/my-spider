@@ -16,7 +16,7 @@ func NewWeixinInfo() WeixinInfo {
 
 	return WeixinInfo{
 		CommonInfo: CommonInfo{
-			Author:  "鸟窝",
+			Author:  "鸟窝1",
 			WebUrl:  "https://Weixin.com",
 			Page:    "",
 			PageUrl: "https://Weixin.com/categories/Go",
