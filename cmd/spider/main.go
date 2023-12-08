@@ -1,9 +1,12 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
+
 	"my-spider/internal/app/blog"
 	"my-spider/pkg/config/env"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -17,6 +20,8 @@ func main() {
 
 	app.Use(gin.Logger(), gin.Recovery())
 	blog.Router(app)
+
+	fmt.Println("123213")
 
 	app.Run("127.0.0.1:" + env.Conf.Port)
 
